@@ -1,47 +1,49 @@
-# Stage 1: Build stage
-FROM node:lts-alpine AS builder
+# Stage 1: Build and Prune Dependencies
+# This stage installs all dependencies and creates the production build.
+FROM docker.io/node:lts-alpine as builder
 
+# Set the working directory for the build stage.
 WORKDIR /app
 
-# Enable corepack for Yarn
+# Enable corepack for Yarn.
 RUN corepack enable
 
-# Copy package.json and yarn.lock first to leverage Docker cache for dependencies
-COPY package.json yarn.lock ./
-
-# Copy workspace packages and apps definitions (if needed)
+# Copy all source files and configuration.
+# This copies everything needed for the build, including the nx-specific files.
 COPY . .
 
+# Install all dependencies (including dev dependencies) required for the build.
 RUN yarn install
-# Install dependencies
-# Copy rest of the source code (if not all copied above)
-# (optional if you copied everything in previous steps)
-# COPY . .
 
-# Run the build for the web app
-RUN yarn build:api
+# Run the build and "prune" the output to create a production-ready folder.
+# This step creates a minimal package.json, yarn.lock, and the built application
+# in the 'dist/apps/api' folder.
+RUN npx nx run api:prune --prod
 
-# Stage 2: Production image
-FROM node:lts-alpine
+# ---
+# Stage 2: Create a Lightweight Production Image
+# This stage starts from a clean base and only includes what's necessary to run the app.
+FROM docker.io/node:lts-alpine
 
+# Set the working directory for the final container.
 WORKDIR /app
 
+# Enable corepack for Yarn.
 RUN corepack enable
 
-# Copy built app from builder
-COPY --from=builder /app/dist/apps/web ./dist
+# Copy the pruned and built application from the builder stage.
+# This copies the entire contents of 'dist/apps/api' (which now includes
+# the production-only package.json and the built code) into the root of the
+# final container's working directory.
+COPY --from=builder /app/dist/apps/api ./
 
-# Copy package.json and yarn.lock to install production dependencies
-COPY package.json yarn.lock ./
+# Copy the root package.json and yarn.lock to ensure shared dependencies are installed.
+# This is a key change to fix the "module not found" error.
 
-# Install only production dependencies
+# Install only the production dependencies from the root package.json.
+# This ensures a minimal footprint for the final image.
 RUN yarn install --production --frozen-lockfile
 
-# Set environment variables if needed, e.g., NODE_ENV=production
-ENV NODE_ENV=production
-
-# Expose port if your app listens on a port (e.g., 3000)
-EXPOSE 3000
-
-# Run the built app
-CMD ["node", "dist/main.js"]
+# Define the command to run the application.
+# The entry file 'main.js' is now at the root of the working directory.
+CMD [ "node", "main.js" ]
