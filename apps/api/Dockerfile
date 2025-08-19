@@ -14,7 +14,7 @@ RUN corepack enable
 
 WORKDIR /app
 
-COPY dist .
+COPY dist/apps/api .
 
 # You can remove this install step if you build with `--bundle` option.
 # The bundled output will include external dependencies.
