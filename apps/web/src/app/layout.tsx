@@ -1,4 +1,5 @@
 import './global.css';
+import TrpcProvider from './provider/trpc-provider';
 
 export const metadata = {
   title: 'Welcome to web',
@@ -12,7 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TrpcProvider>{children} </TrpcProvider>
+      </body>
     </html>
   );
 }
