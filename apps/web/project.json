@@ -4,6 +4,27 @@
   "sourceRoot": "apps/web",
   "projectType": "application",
   "tags": [],
-  "// targets": "to see all targets run: nx show project web --web",
-  "targets": {}
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "options": {
+        "outputPath": "dist/apps/web",
+        "index": "apps/web/src/index.html",
+        "main": "apps/web/src/main.tsx",
+        "tsConfig": "apps/web/tsconfig.app.json",
+        "styles": ["apps/web/src/global.css"],
+        "scripts": []
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:dev-server",
+      "options": {
+        "port": 3000
+      }
+    },
+    
+    "docker:build": {
+      "dependsOn": ["build", "prune"]
+    }
+  }
 }
