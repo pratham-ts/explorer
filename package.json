@@ -2,22 +2,17 @@
   "name": "@explorer/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
-  "private": true,
-  "dependencies": {
-    "@tanstack/react-query": "^5.85.4",
-    "@trpc/client": "^11.4.4",
-    "@trpc/react-query": "^11.4.4",
-    "@trpc/server": "^11.4.4",
-    "@types/cors": "^2.8.19",
-    "@types/minimatch": "^6.0.0",
-    "axios": "^1.6.0",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "next": "~15.2.4",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
+  "scripts": {
+    "build:web": "nx run @explorer/web:build:production",
+    "build:api": "nx run @explorer/api:build:production",
+    "dev": "nx run-many --target=dev --all",
+    "lint": "nx run-many --target=lint --all",
+    "test": "nx run-many --target=test --all",
+    "format": "nx format:write",
+    "format:check": "nx format:check"
   },
+  "private": true,
+  "dependencies": {},
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
     "@eslint/eslintrc": "^2.1.1",
